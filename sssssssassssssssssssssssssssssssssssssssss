@@ -1,0 +1,8 @@
+modelBuilder.Entity<Row>()
+    .HasIndex(r => new { r.PlaceId, r.RowNumber })
+    .IsUnique();
+
+
+services.AddDbContext<AppDbContext>(options =>
+options.UseSqlServer(connectionString)
+       .UseLazyLoadingProxies());

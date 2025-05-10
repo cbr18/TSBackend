@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "i9BxhmxqFTSIUinOvqL/TfUjJDFDCyr/qPdvCXUVUxM=",
+  "Source": "TSBackend",
+  "BasePath": "_content/TSBackend",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
