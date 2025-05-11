@@ -5,8 +5,7 @@ using System.Text.Json.Serialization;
 namespace TSBackend.Model;
 
 [Table("tickets")]
-public class Ticket
-{
+public class Ticket {
     [Key]
     [Column("id")]
     public int Id { get; set; }
@@ -40,20 +39,16 @@ public class Ticket
     public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;
 }
 
-public class TicketCreateDto
-{
+public class TicketCreateDto {
     [Required]
     public int MeetingId { get; set; }
 
     [Required]
     public int UserId { get; set; }
-
-    [Required]
     public int? SeatId { get; set; }
 }
 
-public class TicketDetailsDto
-{
+public class TicketDetailsDto {
     public int Id { get; set; }
     public string MeetingName { get; set; } = null!;
     public int MeetingId { get; set; }
