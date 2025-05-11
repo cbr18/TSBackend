@@ -142,7 +142,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
 
         // Configure unique constraints
         modelBuilder.Entity<Venue>()
-            .HasIndex(v => new { v.CityId, v.Address })
+            .HasIndex(v => new { v.CityId, v.Name, v.Address })
             .IsUnique();
 
         modelBuilder.Entity<City>()

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TSBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class InitialMigrate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,8 +36,6 @@ namespace TSBackend.Migrations
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     passwordhash = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -176,20 +174,19 @@ namespace TSBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "places",
+                name: "venues",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: true),
+                    address = table.Column<string>(type: "text", nullable: false),
                     city_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_places", x => x.id);
+                    table.PrimaryKey("PK_venues", x => x.id);
                     table.ForeignKey(
-                        name: "FK_places_cities_city_id",
+                        name: "FK_venues_cities_city_id",
                         column: x => x.city_id,
                         principalTable: "cities",
                         principalColumn: "id",
@@ -197,22 +194,22 @@ namespace TSBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "categories",
+                name: "halls",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     name = table.Column<string>(type: "text", nullable: false),
-                    place_id = table.Column<int>(type: "integer", nullable: false),
-                    rows_per_category = table.Column<int>(type: "integer", nullable: false)
+                    capacity = table.Column<int>(type: "integer", nullable: false),
+                    venue_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_categories", x => x.id);
+                    table.PrimaryKey("PK_halls", x => x.id);
                     table.ForeignKey(
-                        name: "FK_categories_places_place_id",
-                        column: x => x.place_id,
-                        principalTable: "places",
+                        name: "FK_halls_venues_venue_id",
+                        column: x => x.venue_id,
+                        principalTable: "venues",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -226,15 +223,16 @@ namespace TSBackend.Migrations
                     name = table.Column<string>(type: "text", nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
                     date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    place_id = table.Column<int>(type: "integer", nullable: false)
+                    has_seat_map = table.Column<bool>(type: "boolean", nullable: false),
+                    hall_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_meetings", x => x.id);
                     table.ForeignKey(
-                        name: "FK_meetings_places_place_id",
-                        column: x => x.place_id,
-                        principalTable: "places",
+                        name: "FK_meetings_halls_hall_id",
+                        column: x => x.hall_id,
+                        principalTable: "halls",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -245,17 +243,17 @@ namespace TSBackend.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    category_id = table.Column<int>(type: "integer", nullable: false),
                     row_number = table.Column<int>(type: "integer", nullable: false),
-                    seats_per_row = table.Column<int>(type: "integer", nullable: false)
+                    seats_count = table.Column<int>(type: "integer", nullable: false),
+                    hall_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_rows", x => x.id);
                     table.ForeignKey(
-                        name: "FK_rows_categories_category_id",
-                        column: x => x.category_id,
-                        principalTable: "categories",
+                        name: "FK_rows_halls_hall_id",
+                        column: x => x.hall_id,
+                        principalTable: "halls",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -266,8 +264,8 @@ namespace TSBackend.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    row_id = table.Column<int>(type: "integer", nullable: false),
-                    seat_number = table.Column<int>(type: "integer", nullable: false)
+                    seat_number = table.Column<int>(type: "integer", nullable: false),
+                    row_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -287,9 +285,8 @@ namespace TSBackend.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     meeting_id = table.Column<int>(type: "integer", nullable: false),
-                    seat_id = table.Column<int>(type: "integer", nullable: false),
-                    category_id = table.Column<int>(type: "integer", nullable: false),
                     user_id = table.Column<int>(type: "integer", nullable: false),
+                    seat_id = table.Column<int>(type: "integer", nullable: false),
                     purchase_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -299,12 +296,6 @@ namespace TSBackend.Migrations
                         name: "FK_tickets_AspNetUsers_user_id",
                         column: x => x.user_id,
                         principalTable: "AspNetUsers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_tickets_categories_category_id",
-                        column: x => x.category_id,
-                        principalTable: "categories",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -365,38 +356,32 @@ namespace TSBackend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_categories_place_id_name",
-                table: "categories",
-                columns: new[] { "place_id", "name" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_cities_name",
                 table: "cities",
                 column: "name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_meetings_name_date_place_id",
-                table: "meetings",
-                columns: new[] { "name", "date", "place_id" },
+                name: "IX_halls_venue_id_name",
+                table: "halls",
+                columns: new[] { "venue_id", "name" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_meetings_place_id",
+                name: "IX_meetings_hall_id",
                 table: "meetings",
-                column: "place_id");
+                column: "hall_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_places_city_id_name",
-                table: "places",
-                columns: new[] { "city_id", "name" },
+                name: "IX_meetings_name_date_hall_id",
+                table: "meetings",
+                columns: new[] { "name", "date", "hall_id" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_rows_category_id_row_number",
+                name: "IX_rows_hall_id_row_number",
                 table: "rows",
-                columns: new[] { "category_id", "row_number" },
+                columns: new[] { "hall_id", "row_number" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -404,11 +389,6 @@ namespace TSBackend.Migrations
                 table: "seats",
                 columns: new[] { "row_id", "seat_number" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_tickets_category_id",
-                table: "tickets",
-                column: "category_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_tickets_meeting_id_seat_id",
@@ -425,6 +405,12 @@ namespace TSBackend.Migrations
                 name: "IX_tickets_user_id",
                 table: "tickets",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_venues_city_id_address",
+                table: "venues",
+                columns: new[] { "city_id", "address" },
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -464,10 +450,10 @@ namespace TSBackend.Migrations
                 name: "rows");
 
             migrationBuilder.DropTable(
-                name: "categories");
+                name: "halls");
 
             migrationBuilder.DropTable(
-                name: "places");
+                name: "venues");
 
             migrationBuilder.DropTable(
                 name: "cities");

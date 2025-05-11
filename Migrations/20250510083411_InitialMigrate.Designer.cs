@@ -12,8 +12,8 @@ using TSBackend.Data;
 namespace TSBackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250409052141_geochords")]
-    partial class geochords
+    [Migration("20250510083411_InitialMigrate")]
+    partial class InitialMigrate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -179,6 +179,36 @@ namespace TSBackend.Migrations
                     b.ToTable("cities");
                 });
 
+            modelBuilder.Entity("TSBackend.Model.Hall", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("capacity");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int>("VenueId")
+                        .HasColumnType("integer")
+                        .HasColumnName("venue_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VenueId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("halls");
+                });
+
             modelBuilder.Entity("TSBackend.Model.Meeting", b =>
                 {
                     b.Property<int>("Id")
@@ -196,26 +226,30 @@ namespace TSBackend.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<int>("HallId")
+                        .HasColumnType("integer")
+                        .HasColumnName("hall_id");
+
+                    b.Property<bool>("HasSeatMap")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_seat_map");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.Property<int>("PlaceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("place_id");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("PlaceId");
+                    b.HasIndex("HallId");
 
-                    b.HasIndex("Name", "Date", "PlaceId")
+                    b.HasIndex("Name", "Date", "HallId")
                         .IsUnique();
 
                     b.ToTable("meetings");
                 });
 
-            modelBuilder.Entity("TSBackend.Model.Place", b =>
+            modelBuilder.Entity("TSBackend.Model.Row", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,37 +258,49 @@ namespace TSBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CityId")
+                    b.Property<int>("HallId")
                         .HasColumnType("integer")
-                        .HasColumnName("city_id");
+                        .HasColumnName("hall_id");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<double>("Latitude")
-                        .HasColumnType("double precision")
-                        .HasColumnName("latitude");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("double precision")
-                        .HasColumnName("longitude");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<int>("TotalSeats")
+                    b.Property<int>("RowNumber")
                         .HasColumnType("integer")
-                        .HasColumnName("total_seats");
+                        .HasColumnName("row_number");
+
+                    b.Property<int>("SeatsCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("seats_count");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId", "Name")
+                    b.HasIndex("HallId", "RowNumber")
                         .IsUnique();
 
-                    b.ToTable("places");
+                    b.ToTable("rows");
+                });
+
+            modelBuilder.Entity("TSBackend.Model.Seat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_id");
+
+                    b.Property<int>("SeatNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("seat_number");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RowId", "SeatNumber")
+                        .IsUnique();
+
+                    b.ToTable("seats");
                 });
 
             modelBuilder.Entity("TSBackend.Model.Ticket", b =>
@@ -274,15 +320,22 @@ namespace TSBackend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("purchase_date");
 
+                    b.Property<int?>("SeatId")
+                        .IsRequired()
+                        .HasColumnType("integer")
+                        .HasColumnName("seat_id");
+
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SeatId");
+
                     b.HasIndex("UserId");
 
-                    b.HasIndex("MeetingId", "UserId")
+                    b.HasIndex("MeetingId", "SeatId")
                         .IsUnique();
 
                     b.ToTable("tickets");
@@ -369,6 +422,32 @@ namespace TSBackend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("TSBackend.Model.Venue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("address");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("city_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId", "Address")
+                        .IsUnique();
+
+                    b.ToTable("venues");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -420,26 +499,48 @@ namespace TSBackend.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TSBackend.Model.Meeting", b =>
+            modelBuilder.Entity("TSBackend.Model.Hall", b =>
                 {
-                    b.HasOne("TSBackend.Model.Place", "Place")
-                        .WithMany("Meetings")
-                        .HasForeignKey("PlaceId")
+                    b.HasOne("TSBackend.Model.Venue", "Venue")
+                        .WithMany("Halls")
+                        .HasForeignKey("VenueId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Place");
+                    b.Navigation("Venue");
                 });
 
-            modelBuilder.Entity("TSBackend.Model.Place", b =>
+            modelBuilder.Entity("TSBackend.Model.Meeting", b =>
                 {
-                    b.HasOne("TSBackend.Model.City", "City")
-                        .WithMany("Places")
-                        .HasForeignKey("CityId")
+                    b.HasOne("TSBackend.Model.Hall", "Hall")
+                        .WithMany("Meetings")
+                        .HasForeignKey("HallId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("City");
+                    b.Navigation("Hall");
+                });
+
+            modelBuilder.Entity("TSBackend.Model.Row", b =>
+                {
+                    b.HasOne("TSBackend.Model.Hall", "Hall")
+                        .WithMany("Rows")
+                        .HasForeignKey("HallId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Hall");
+                });
+
+            modelBuilder.Entity("TSBackend.Model.Seat", b =>
+                {
+                    b.HasOne("TSBackend.Model.Row", "Row")
+                        .WithMany("Seats")
+                        .HasForeignKey("RowId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Row");
                 });
 
             modelBuilder.Entity("TSBackend.Model.Ticket", b =>
@@ -447,6 +548,12 @@ namespace TSBackend.Migrations
                     b.HasOne("TSBackend.Model.Meeting", "Meeting")
                         .WithMany("Tickets")
                         .HasForeignKey("MeetingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TSBackend.Model.Seat", "Seat")
+                        .WithMany("Tickets")
+                        .HasForeignKey("SeatId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -458,12 +565,32 @@ namespace TSBackend.Migrations
 
                     b.Navigation("Meeting");
 
+                    b.Navigation("Seat");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TSBackend.Model.Venue", b =>
+                {
+                    b.HasOne("TSBackend.Model.City", "City")
+                        .WithMany("Venues")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("TSBackend.Model.City", b =>
                 {
-                    b.Navigation("Places");
+                    b.Navigation("Venues");
+                });
+
+            modelBuilder.Entity("TSBackend.Model.Hall", b =>
+                {
+                    b.Navigation("Meetings");
+
+                    b.Navigation("Rows");
                 });
 
             modelBuilder.Entity("TSBackend.Model.Meeting", b =>
@@ -471,14 +598,24 @@ namespace TSBackend.Migrations
                     b.Navigation("Tickets");
                 });
 
-            modelBuilder.Entity("TSBackend.Model.Place", b =>
+            modelBuilder.Entity("TSBackend.Model.Row", b =>
                 {
-                    b.Navigation("Meetings");
+                    b.Navigation("Seats");
+                });
+
+            modelBuilder.Entity("TSBackend.Model.Seat", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("TSBackend.Model.User", b =>
                 {
                     b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("TSBackend.Model.Venue", b =>
+                {
+                    b.Navigation("Halls");
                 });
 #pragma warning restore 612, 618
         }

@@ -11,6 +11,9 @@ public class Venue
     [Column("id")]
     public int Id { get; set; }
 
+    [Column("name")]
+    public string Name { get; set; } = null!;
+
     [Column("address")]
     [Required]
     public string Address { get; set; } = null!;
@@ -29,6 +32,10 @@ public class Venue
 
 public class VenueCreateDto
 {
+
+    [Required]
+    public string Name { get; set; } = null!;
+
     [Required]
     public string Address { get; set; } = null!;
 
@@ -38,5 +45,6 @@ public class VenueCreateDto
 
 public class VenueUpdateDto
 {
+    public string Name { get; set; } = null!;
     public string Address { get; set; } = null!;
 }
