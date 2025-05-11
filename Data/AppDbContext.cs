@@ -5,10 +5,8 @@ using TSBackend.Model;
 
 namespace TSBackend.Data;
 
-public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
-{
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
+public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int> {
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {
     }
 
     public DbSet<City> Cities { get; set; } = null!;
@@ -19,17 +17,14 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     public DbSet<Meeting> Meetings { get; set; } = null!;
     public DbSet<Ticket> Tickets { get; set; } = null!;
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+        if (!optionsBuilder.IsConfigured) {
             // Это можно заменить на получение строки подключения из конфигурации
             optionsBuilder.UseNpgsql("Host=localhost;Database=ticketing_system;Username=your_username;Password=your_password");
         }
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
 
         // Configure City
@@ -51,6 +46,10 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
             .WithOne(h => h.Venue)
             .HasForeignKey(h => h.VenueId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Venue>()
+            .HasIndex(v => new { v.CityId, v.Name, v.Address })
+            .IsUnique(); // Ensure Name is part of the unique constraint
 
         // Configure Hall
         modelBuilder.Entity<Hall>()
@@ -141,10 +140,6 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
             .OnDelete(DeleteBehavior.Restrict);
 
         // Configure unique constraints
-        modelBuilder.Entity<Venue>()
-            .HasIndex(v => new { v.CityId, v.Name, v.Address })
-            .IsUnique();
-
         modelBuilder.Entity<City>()
             .HasIndex(c => c.Name)
             .IsUnique();

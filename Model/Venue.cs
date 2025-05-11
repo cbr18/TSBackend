@@ -5,14 +5,13 @@ using System.Text.Json.Serialization;
 namespace TSBackend.Model;
 
 [Table("venues")]
-public class Venue
-{
+public class Venue {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
     [Column("name")]
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = null!; // Ensure Name is properly mapped in the Venue model
 
     [Column("address")]
     [Required]
@@ -30,8 +29,7 @@ public class Venue
     public virtual List<Hall> Halls { get; set; } = [];
 }
 
-public class VenueCreateDto
-{
+public class VenueCreateDto {
 
     [Required]
     public string Name { get; set; } = null!;
@@ -43,8 +41,7 @@ public class VenueCreateDto
     public int CityId { get; set; }
 }
 
-public class VenueUpdateDto
-{
+public class VenueUpdateDto {
     public string Name { get; set; } = null!;
     public string Address { get; set; } = null!;
 }
